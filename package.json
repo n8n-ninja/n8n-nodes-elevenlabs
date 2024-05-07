@@ -1,12 +1,12 @@
 {
 	"name": "n8n-nodes-elevenlabs",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "n8n node to call ElevenLabs speech to text and text to speech methods.",
 	"keywords": [
 		"n8n-community-node-package"
 	],
 	"license": "MIT",
-	"homepage": "https://n8n.io",
+	"homepage": "https://n8n.ninja",
 	"author": {
 		"name": "n8ninja",
 		"email": "n8n.ninja@gmail.com"
