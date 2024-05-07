@@ -12,8 +12,9 @@ export const createVoiceOperation: INodePropertyOptions = {
 			url: '={{"voice-generation/create-voice"}}',
 			method: 'POST',
 			body: {
-				voice_name: '={{$parameter["voice_name"]}}',
-				voice_description: '={{$parameter["additionalFields"]["voice_description"]}}',
+				voice_name: '={{$parameter["name"]}}',
+				voice_description: '={{$parameter["additionalFields"]["description"]}}',
+				labels: '={{$parameter["additionalFields"]["labels"]}}',
 				generated_voice_id: '={{$parameter["generated_voice_id"]}}',
 			},
 		},

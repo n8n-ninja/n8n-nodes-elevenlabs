@@ -55,8 +55,11 @@ async function preSendUploadAudio(
 	const formData = new FormData();
 	const audioBuffer = await this.helpers.getBinaryDataBuffer('data');
 	const name = this.getNodeParameter('name') as string;
-	const description = this.getNodeParameter('additionalFields.description') as string;
-	const labels = this.getNodeParameter('additionalFields.labels') as string;
+	const description = this.getNodeParameter(
+		'additionalFields.description',
+		'Generated with n8n',
+	) as string;
+	const labels = this.getNodeParameter('additionalFields.labels', '') as string;
 
 	formData.append('name', name);
 	formData.append('description', description);
