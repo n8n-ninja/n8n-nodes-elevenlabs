@@ -29,6 +29,7 @@ export const getVoiceDetailsParameters: INodeProperties[] = [
 	{
 		...voiceIdParameter,
 		displayOptions,
+		required: true,
 	},
 	{
 		displayName: 'With Settings',

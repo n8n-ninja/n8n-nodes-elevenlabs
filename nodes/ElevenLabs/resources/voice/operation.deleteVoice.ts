@@ -26,5 +26,6 @@ export const deleteVoiceParameters: INodeProperties[] = [
 	{
 		...voiceIdParameter,
 		displayOptions,
+		required: true,
 	},
 ];

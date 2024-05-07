@@ -56,6 +56,7 @@ export const SpeechOperation: INodeProperties[] = [
 	{
 		...voiceIdParameter,
 		displayOptions,
+		required: true,
 	},
 
 	// Additional fields
