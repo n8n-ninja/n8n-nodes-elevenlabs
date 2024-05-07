@@ -1,8 +1,8 @@
 # n8n-nodes-elevenlabs
 
-This is an n8n community node. It lets you use ElevenLabs in your n8n workflows.
+This is an n8n community node. It lets you use **ElevenLabs in your n8n workflows**.
 
-ElevenLabs is creates the most realistic, versatile and contextually-aware AI audio, providing the ability to generate speech in hundreds of new and existing voices in 29 languages.
+**ElevenLabs** creates the most realistic, versatile and contextually-aware AI audio, providing the ability to generate speech in hundreds of new and existing voices in 29 languages.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
@@ -20,13 +20,13 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-- Text to speech: converts text into lifelike speech.
-- Speech to speech: transform uploaded speech so it sounds like it was spoken by another voice.
-- Generate voice: generate a random voice based on parameters, and Create voice, to save a generated voice to your library.
-- Clone your voice: generate a new voice based on audio file.
-- Voice management: delete voices.
-- Audio generation history: retrieve your history, download audios or delete history items.
-- User info and subscription: retrieve your usage metadata (such as used token)
+- **Text to speech**: converts text into lifelike speech.
+- **Speech to speech**: transform uploaded speech so it sounds like it was spoken by another voice.
+- **Generate voice**: generate a random voice based on parameters, and **Create voice**, to save a generated voice to your library.
+- **Clone your voice**: generate a new voice based on audio file.
+- **Voice management**: delete voices.
+- **Audio generation history**: retrieve your history, download audios or delete history items.
+- **User info and subscription**: retrieve your usage metadata (such as used token)
 
 ## Credentials
 
