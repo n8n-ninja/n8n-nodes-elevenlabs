@@ -1,6 +1,6 @@
 import { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 import { returnBinary } from '../../methods/returnBinary';
-// import { binaryNameParameter, fileNameParameter } from '../shared/parameters';
+import { binaryNameParameter, fileNameParameter } from '../shared/parameters';
 
 const defaultText =
 	'Digital Wisdom is the subtle art of cutting through bullshit tasks so we can focus on what truly matters and bring value to the world.';
@@ -118,18 +118,10 @@ export const generateVoiceParameters: INodeProperties[] = [
 		displayOptions,
 		options: [
 			{
-				displayName: 'Binary Name',
-				description: 'Change the output binary name',
-				name: 'binary_name',
-				type: 'string',
-				default: 'data',
+				...binaryNameParameter,
 			},
 			{
-				displayName: 'File Name',
-				description: 'Change the output file name',
-				name: 'file_name',
-				type: 'string',
-				default: 'voice',
+				...fileNameParameter,
 			},
 			// Text
 			{
