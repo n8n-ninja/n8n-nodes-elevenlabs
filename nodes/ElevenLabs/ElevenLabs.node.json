@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-base.ElevenLabs",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Miscellaneous"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/n8n-ninja/n8n-nodes-elevenlabs"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/n8n-ninja/n8n-nodes-elevenlabs"
+			}
+		]
+	}
+}
