@@ -94,8 +94,8 @@ export const SpeechOperation: INodeProperties[] = [
 			},
 			// model_id
 			{
-				displayName: 'Model ID',
-				description: 'Identifier of the model that will be used.',
+				displayName: 'Model Name or ID',
+				description: 'Identifier of the model that will be used. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
 				name: 'model_id',
 				type: 'options',
 				typeOptions: {
@@ -109,6 +109,7 @@ export const SpeechOperation: INodeProperties[] = [
 				description: 'Define voice stability',
 				name: 'stability',
 				type: 'number',
+				default: '0',
 				default: defaultSettings.stability,
 				typeOptions: {
 					maxValue: 1,
@@ -122,6 +123,7 @@ export const SpeechOperation: INodeProperties[] = [
 				description: 'Define voice similarity boost',
 				name: 'similarity_boost',
 				type: 'number',
+				default: '0',
 				default: defaultSettings.similarity_boost,
 				typeOptions: {
 					maxValue: 1,
@@ -135,6 +137,7 @@ export const SpeechOperation: INodeProperties[] = [
 				description: 'Exaggerate voice style',
 				name: 'style',
 				type: 'number',
+				default: '0',
 				default: defaultSettings.style,
 				typeOptions: {
 					maxValue: 100,
