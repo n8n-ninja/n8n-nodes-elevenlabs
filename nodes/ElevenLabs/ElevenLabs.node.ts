@@ -1,11 +1,11 @@
 import { INodeType, INodeTypeDescription } from 'n8n-workflow';
-import { SpeechOperation } from './resources/speech/Speech.resource';
-import { VoiceOperations } from './resources/voice/Voice.resource';
-import { loadOptions } from './methods/loadOptions';
-import { listSearch } from './methods/listSearch';
 import { BASE_URL } from './config';
+import { listSearch } from './methods/listSearch';
+import { loadOptions } from './methods/loadOptions';
 import { HistoryOperations } from './resources/history/History.resource';
+import { SpeechOperation } from './resources/speech/Speech.resource';
 import { UserOperations } from './resources/user/User.resource';
+import { VoiceOperations } from './resources/voice/Voice.resource';
 
 export class ElevenLabs implements INodeType {
 	description: INodeTypeDescription = {

@@ -1,8 +1,8 @@
 import { INodeProperties } from 'n8n-workflow';
-import { textToSpeechOperation, textToSpeechParameters } from './operation.textToSpeech';
-import { speechToSpeechOperation } from './operation.speechToSpeech';
 import { returnBinary } from '../../methods/returnBinary';
 import { binaryNameParameter, fileNameParameter, voiceIdParameter } from '../shared/parameters';
+import { speechToSpeechOperation } from './operation.speechToSpeech';
+import { textToSpeechOperation, textToSpeechParameters } from './operation.textToSpeech';
 
 const displayOptions = {
 	show: {

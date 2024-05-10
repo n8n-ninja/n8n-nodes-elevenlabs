@@ -1,10 +1,10 @@
 import { INodeProperties } from 'n8n-workflow';
-import { getHistoryOperation, getHistoryParameters } from './operation.getHistory';
-import { getHistoryAudioOperation, getHistoryAudioParameters } from './operation.getHistoryAudio';
 import {
 	deleteHistoryItemOperation,
 	deleteHistoryItemParameters,
 } from './operation.deleteHistoryItem';
+import { getHistoryOperation, getHistoryParameters } from './operation.getHistory';
+import { getHistoryAudioOperation, getHistoryAudioParameters } from './operation.getHistoryAudio';
 
 export const HistoryOperations: INodeProperties[] = [
 	{

@@ -48,5 +48,8 @@
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
+	},
+	"dependencies": {
+		"@trivago/prettier-plugin-sort-imports": "^4.3.0"
 	}
 }
