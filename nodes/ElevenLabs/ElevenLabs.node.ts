@@ -1,13 +1,11 @@
 import { INodeType, INodeTypeDescription } from 'n8n-workflow';
 import { listSearch } from './methods/listSearch';
 import { loadOptions } from './methods/loadOptions';
-import { SpeechOperations } from './resources/speech';
-import { VoiceOperations } from './resources/voice';
-
 // import { debugRequest } from './methods/debugRequest';
-// import { HistoryOperations } from './resources/history/History.resource';
-
-// import { UserOperations } from './resources/user/User.resource';
+import { HistoryOperations } from './resources/history';
+import { SpeechOperations } from './resources/speech';
+import { UserOperations } from './resources/user';
+import { VoiceOperations } from './resources/voice';
 
 export class ElevenLabs implements INodeType {
 	description: INodeTypeDescription = {
@@ -42,7 +40,6 @@ export class ElevenLabs implements INodeType {
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
-
 				options: [
 					{
 						name: 'Speech',
@@ -51,6 +48,14 @@ export class ElevenLabs implements INodeType {
 					{
 						name: 'Voice',
 						value: 'voice',
+					},
+					{
+						name: 'History',
+						value: 'history',
+					},
+					{
+						name: 'User',
+						value: 'user',
 					},
 				],
 				default: 'speech',
@@ -63,8 +68,8 @@ export class ElevenLabs implements INodeType {
 
 			...SpeechOperations,
 			...VoiceOperations,
-			// ...HistoryOperations,
-			// ...UserOperations,
+			...HistoryOperations,
+			...UserOperations,
 		],
 	};
 

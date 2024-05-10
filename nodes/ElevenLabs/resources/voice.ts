@@ -110,8 +110,9 @@ export const VoiceOperations: INodeProperties[] = [
 						method: 'POST',
 						body: {
 							voice_name: '={{$parameter["name"]}}',
-							voice_description: '={{$parameter["additionalFields"]["description"]}}',
-							labels: '={{JSON.parse($parameter["additionalFields"]["labels"])}}',
+							voice_description:
+								'={{$parameter["additionalFields"]["description"] || "Generated with n8n"}}',
+							labels: '={{JSON.parse($parameter["additionalFields"]["labels"]) || {} }}',
 							generated_voice_id: '={{$parameter["generated_voice_id"]}}',
 						},
 					},
@@ -217,7 +218,8 @@ export const VoiceOperations: INodeProperties[] = [
 	// Gender
 	{
 		displayName: 'Gender Name or ID',
-		description: 'The gender of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+		description:
+			'The gender of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
 		required: true,
 		name: 'gender',
 		type: 'options',
@@ -234,7 +236,8 @@ export const VoiceOperations: INodeProperties[] = [
 	// Accent
 	{
 		displayName: 'Accent Name or ID',
-		description: 'The accent of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+		description:
+			'The accent of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
 		required: true,
 		name: 'accent',
 		type: 'options',
@@ -251,7 +254,8 @@ export const VoiceOperations: INodeProperties[] = [
 	// Age
 	{
 		displayName: 'Age Name or ID',
-		description: 'The age of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+		description:
+			'The age of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
 		required: true,
 		name: 'age',
 		type: 'options',
