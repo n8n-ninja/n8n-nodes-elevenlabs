@@ -17,8 +17,6 @@ async function loadModels(this: ILoadOptionsFunctions) {
 		url: `${BASE_URL}/models`,
 	});
 
-	console.log(results);
-
 	return results.map((entry: { name: string; model_id: string }) => ({
 		name: entry.name,
 		value: entry.model_id,

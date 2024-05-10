@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { defaultSettings } from '../../config';
 
 export const voiceIdParameter: INodeProperties = {
 	displayName: 'Voice ID',
@@ -33,7 +34,7 @@ export const voiceName: INodeProperties = {
 	description: 'Voice name',
 	name: 'name',
 	type: 'string',
-	default: 'n8n voice',
+	default: defaultSettings.voiceName,
 };
 
 // Voice Creation Additional Infos
@@ -50,7 +51,7 @@ export const voiceDescriptionAndLabels: INodeProperties = {
 			description: 'Voice description',
 			name: 'description',
 			type: 'string',
-			default: 'Generated with n8n',
+			default: defaultSettings.voiceDescription,
 		},
 		// Labels
 		{
@@ -58,11 +59,7 @@ export const voiceDescriptionAndLabels: INodeProperties = {
 			description: 'Labels to describe this voice (max 5)',
 			name: 'labels',
 			type: 'json',
-			default: `{
-"language": "en",
-"descriptive": "custom",
-"generated": "with n8n"
-}`,
+			default: defaultSettings.labels,
 		},
 	],
 };

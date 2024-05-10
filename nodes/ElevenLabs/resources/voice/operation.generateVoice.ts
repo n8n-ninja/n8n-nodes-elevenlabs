@@ -1,10 +1,7 @@
 import { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
+import { defaultSettings } from '../../config';
 import { returnBinary } from '../../methods/returnBinary';
 import { binaryNameParameter, fileNameParameter } from '../shared/parameters';
-
-const defaultText =
-	'Digital Wisdom is the subtle art of cutting through bullshit tasks so we can focus on what truly matters and bring value to the world.';
-const defaultAccentStrength = 1;
 
 /* Operation */
 export const generateVoiceOperation: INodePropertyOptions = {
@@ -22,8 +19,8 @@ export const generateVoiceOperation: INodePropertyOptions = {
 				age: '={{$parameter["age"]}}',
 				gender: '={{$parameter["gender"]}}',
 				accent: '={{$parameter["accent"]}}',
-				accent_strength: `={{$parameter["additionalFields"]["accent_strength"] || ${defaultAccentStrength}}}`,
-				text: `={{$parameter["additionalFields"]["text"] || "${defaultText}" }}`,
+				accent_strength: `={{$parameter["additionalFields"]["accent_strength"] || ${defaultSettings.defaultAccentStrength}}}`,
+				text: `={{$parameter["additionalFields"]["text"] || "${defaultSettings.defaultText}" }}`,
 			},
 		},
 		output: {
@@ -39,7 +36,7 @@ export const generateVoiceOperation: INodePropertyOptions = {
 							accent: this.getNodeParameter('accent'),
 							accent_strength: this.getNodeParameter(
 								'additionalFields.accent_strength',
-								defaultAccentStrength,
+								defaultSettings.defaultAccentStrength,
 							),
 						},
 					}));
@@ -68,9 +65,8 @@ export const generateVoiceParameters: INodeProperties[] = [
 	},
 	// Gender
 	{
-		displayName: 'Gender Name or ID',
-		description:
-			'The gender of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+		displayName: 'Gender',
+		description: 'The gender of the speaker.',
 		required: true,
 		name: 'gender',
 		type: 'options',
@@ -82,9 +78,8 @@ export const generateVoiceParameters: INodeProperties[] = [
 	},
 	// Accent
 	{
-		displayName: 'Accent Name or ID',
-		description:
-			'The accent of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+		displayName: 'Accent',
+		description: 'The accent of the speaker.',
 		required: true,
 		name: 'accent',
 		type: 'options',
@@ -96,9 +91,8 @@ export const generateVoiceParameters: INodeProperties[] = [
 	},
 	// Age
 	{
-		displayName: 'Age Name or ID',
-		description:
-			'The age of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+		displayName: 'Age',
+		description: 'The age of the speaker',
 		required: true,
 		name: 'age',
 		type: 'options',
@@ -126,13 +120,13 @@ export const generateVoiceParameters: INodeProperties[] = [
 			// Text
 			{
 				displayName: 'Sample Text',
-				description: 'Default text to sample',
+				description: 'Sample text to use for voice generation',
 				name: 'text',
 				type: 'string',
 				typeOptions: {
 					rows: 5,
 				},
-				default: defaultText,
+				default: defaultSettings.defaultText,
 			},
 			// Accent Strength
 			{
@@ -143,9 +137,9 @@ export const generateVoiceParameters: INodeProperties[] = [
 				typeOptions: {
 					maxValue: 2,
 					minValue: 0.3,
-					numberStepSize: 0.1,
+					numberStepSize: 0.01,
 				},
-				default: defaultAccentStrength,
+				default: defaultSettings.defaultAccentStrength,
 			},
 		],
 	},

@@ -14,7 +14,7 @@ export const createVoiceOperation: INodePropertyOptions = {
 			body: {
 				voice_name: '={{$parameter["name"]}}',
 				voice_description: '={{$parameter["additionalFields"]["description"]}}',
-				labels: '={{$parameter["additionalFields"]["labels"]}}',
+				labels: '={{JSON.parse($parameter["additionalFields"]["labels"])}}',
 				generated_voice_id: '={{$parameter["generated_voice_id"]}}',
 			},
 		},

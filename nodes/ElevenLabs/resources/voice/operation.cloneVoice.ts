@@ -4,6 +4,7 @@ import {
 	INodeProperties,
 	INodePropertyOptions,
 } from 'n8n-workflow';
+import { defaultSettings } from '../../config';
 import { voiceDescriptionAndLabels, voiceName } from '../shared/parameters';
 
 /* Operation */
@@ -16,6 +17,24 @@ export const cloneVoiceOperation: INodePropertyOptions = {
 		send: {
 			preSend: [preSendUploadAudio],
 		},
+		output: {
+			postReceive: [
+				async function (this, items, responseData) {
+					return items.map((item) => ({
+						...item,
+						json: {
+							...item.json,
+							name: this.getNodeParameter('name'),
+							description: this.getNodeParameter(
+								'additionalFields.description',
+								defaultSettings.voiceDescription,
+							) as string,
+							labels: JSON.parse(this.getNodeParameter('additionalFields.labels', '{}') as string),
+						},
+					}));
+				},
+			],
+		},
 		request: {
 			url: '={{"/voices/add"}}',
 			returnFullResponse: true,
@@ -23,6 +42,7 @@ export const cloneVoiceOperation: INodePropertyOptions = {
 			headers: {
 				'Content-Type': 'multipart/form-data',
 			},
+			// Body data are constructed in preSend method
 		},
 	},
 };
@@ -57,9 +77,9 @@ async function preSendUploadAudio(
 	const name = this.getNodeParameter('name') as string;
 	const description = this.getNodeParameter(
 		'additionalFields.description',
-		'Generated with n8n',
+		defaultSettings.voiceDescription,
 	) as string;
-	const labels = this.getNodeParameter('additionalFields.labels', '') as string;
+	const labels = this.getNodeParameter('additionalFields.labels', '{}') as string;
 
 	formData.append('name', name);
 	formData.append('description', description);

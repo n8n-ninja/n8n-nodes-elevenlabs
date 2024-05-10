@@ -1,5 +1,6 @@
 import { INodeType, INodeTypeDescription } from 'n8n-workflow';
 import { BASE_URL } from './config';
+import { debugRequest } from './methods/debugRequest';
 import { listSearch } from './methods/listSearch';
 import { loadOptions } from './methods/loadOptions';
 import { HistoryOperations } from './resources/history/History.resource';
@@ -40,6 +41,7 @@ export class ElevenLabs implements INodeType {
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
+
 				options: [
 					{
 						name: 'Speech',
@@ -59,6 +61,11 @@ export class ElevenLabs implements INodeType {
 					},
 				],
 				default: 'voice',
+				routing: {
+					send: {
+						preSend: [debugRequest],
+					},
+				},
 			},
 
 			...SpeechOperation,

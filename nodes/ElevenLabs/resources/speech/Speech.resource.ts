@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { defaultSettings } from '../../config';
 import { returnBinary } from '../../methods/returnBinary';
 import { binaryNameParameter, fileNameParameter, voiceIdParameter } from '../shared/parameters';
 import { speechToSpeechOperation } from './operation.speechToSpeech';
@@ -32,15 +33,15 @@ export const SpeechOperation: INodeProperties[] = [
 				body: {
 					model_id: '={{$parameter["additionalFields"]["model_id"]}}',
 					voice_settings: {
-						stability: '={{($parameter["additionalFields"]["stability"] || 50) / 100}}',
-						similarity_boost:
-							'={{($parameter["additionalFields"]["similarity_boost"] || 50) / 100}}',
-						style: '={{($parameter["additionalFields"]["style"] || 50) / 100}}',
+						stability: `={{$parameter["additionalFields"]["stability"] || ${defaultSettings.stability}}}`,
+						similarity_boost: `={{$parameter["additionalFields"]["similarity_boost"] || ${defaultSettings.similarity_boost}}}`,
+						style: `={{$parameter["additionalFields"]["style"] || ${defaultSettings.style}}}`,
 						use_speaker_boost: '={{$parameter["additionalFields"]["use_speaker_boost"]}}',
 					},
 					seed: '={{$parameter["additionalFields"]["seed"]}}',
-					pronunciation_dictionary_locators:
-						'={{JSON.parse($parameter["additionalFields"]["pronunciation_dictionary_locators"])}}',
+					// Todo Implement dictionary locators
+					// pronunciation_dictionary_locators:
+					// 	'={{JSON.parse($parameter["additionalFields"]["pronunciation_dictionary_locators"])}}',
 				},
 			},
 			output: {
@@ -93,9 +94,8 @@ export const SpeechOperation: INodeProperties[] = [
 			},
 			// model_id
 			{
-				displayName: 'Model Name or ID',
-				description:
-					'Identifier of the model that will be used. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+				displayName: 'Model ID',
+				description: 'Identifier of the model that will be used.',
 				name: 'model_id',
 				type: 'options',
 				typeOptions: {
@@ -109,11 +109,11 @@ export const SpeechOperation: INodeProperties[] = [
 				description: 'Define voice stability',
 				name: 'stability',
 				type: 'number',
-				default: 50,
+				default: defaultSettings.stability,
 				typeOptions: {
-					maxValue: 100,
+					maxValue: 1,
 					minValue: 0,
-					numberStepSize: 1,
+					numberStepSize: 0.01,
 				},
 			},
 			// similarity_boost
@@ -122,11 +122,11 @@ export const SpeechOperation: INodeProperties[] = [
 				description: 'Define voice similarity boost',
 				name: 'similarity_boost',
 				type: 'number',
-				default: 50,
+				default: defaultSettings.similarity_boost,
 				typeOptions: {
-					maxValue: 100,
+					maxValue: 1,
 					minValue: 0,
-					numberStepSize: 1,
+					numberStepSize: 0.01,
 				},
 			},
 			// style
@@ -135,7 +135,7 @@ export const SpeechOperation: INodeProperties[] = [
 				description: 'Exaggerate voice style',
 				name: 'style',
 				type: 'number',
-				default: 50,
+				default: defaultSettings.style,
 				typeOptions: {
 					maxValue: 100,
 					minValue: 0,
@@ -158,20 +158,20 @@ export const SpeechOperation: INodeProperties[] = [
 				type: 'number',
 				default: 0,
 			},
-			// pronunciation_dictionary_locators
-			{
-				displayName: 'Pronunciation Dictionary Locators',
-				description:
-					'A list of pronunciation dictionary locators (ID, version_id) to be applied to the text. (up to 3).',
-				name: 'pronunciation_dictionary_locators',
-				type: 'json',
-				default: `[
-	{
-		"pronunciation_dictionary_id": "xxx",
-		"version_id": "1"
-	}
-]`,
-			},
+			// TODO: pronunciation_dictionary_locators
+			// 			{
+			// 				displayName: 'Pronunciation Dictionary Locators',
+			// 				description:
+			// 					'A list of pronunciation dictionary locators (ID, version_id) to be applied to the text. (up to 3).',
+			// 				name: 'pronunciation_dictionary_locators',
+			// 				type: 'json',
+			// 				default: `[
+			// 	{
+			// 		"pronunciation_dictionary_id": "xxx",
+			// 		"version_id": "1"
+			// 	}
+			// ]`,
+			// 			},
 		],
 	},
 ];
