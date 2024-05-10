@@ -52,6 +52,9 @@ const displayOptions = {
 	},
 };
 
+// Needed for linter (does not accept the property of an imported object)
+const defaultAccentStrength = defaultSettings.defaultAccentStrength;
+
 /* Parameters */
 export const generateVoiceParameters: INodeProperties[] = [
 	// Notice
@@ -66,7 +69,8 @@ export const generateVoiceParameters: INodeProperties[] = [
 	// Gender
 	{
 		displayName: 'Gender Name or ID',
-		description: 'The gender of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+		description:
+			'The gender of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
 		required: true,
 		name: 'gender',
 		type: 'options',
@@ -79,7 +83,8 @@ export const generateVoiceParameters: INodeProperties[] = [
 	// Accent
 	{
 		displayName: 'Accent Name or ID',
-		description: 'The accent of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+		description:
+			'The accent of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
 		required: true,
 		name: 'accent',
 		type: 'options',
@@ -92,7 +97,8 @@ export const generateVoiceParameters: INodeProperties[] = [
 	// Age
 	{
 		displayName: 'Age Name or ID',
-		description: 'The age of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+		description:
+			'The age of the speaker. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
 		required: true,
 		name: 'age',
 		type: 'options',
@@ -123,11 +129,10 @@ export const generateVoiceParameters: INodeProperties[] = [
 				description: 'Sample text to use for voice generation',
 				name: 'text',
 				type: 'string',
-				default: '',
 				typeOptions: {
 					rows: 5,
 				},
-				default: defaultSettings.defaultText,
+				default: `${defaultSettings.defaultText}`,
 			},
 			// Accent Strength
 			{
@@ -135,13 +140,12 @@ export const generateVoiceParameters: INodeProperties[] = [
 				required: true,
 				name: 'accent_strength',
 				type: 'number',
-				default: '0',
+				default: defaultAccentStrength,
 				typeOptions: {
 					maxValue: 2,
 					minValue: 0.3,
 					numberStepSize: 0.01,
 				},
-				default: defaultSettings.defaultAccentStrength,
 			},
 		],
 	},
