@@ -3,12 +3,11 @@ import type {
 	INodeListSearchItems,
 	INodeListSearchResult,
 } from 'n8n-workflow';
-import { BASE_URL } from '../config';
 
 export const listSearch = {
 	async listVoices(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
 		const results = await this.helpers.httpRequestWithAuthentication.call(this, 'elevenLabsApi', {
-			url: `${BASE_URL}/voices`,
+			url: `https://api.elevenlabs.io/v1/voices`,
 		});
 
 		const returnData: INodeListSearchItems[] = results.voices.map(

@@ -1,29 +1,51 @@
-import { INodeProperties } from 'n8n-workflow';
-import { defaultSettings } from '../../config';
-import { returnBinary } from '../../methods/returnBinary';
-import { binaryNameParameter, fileNameParameter, voiceIdParameter } from '../shared/parameters';
-import { speechToSpeechOperation } from './operation.speechToSpeech';
-import { textToSpeechOperation, textToSpeechParameters } from './operation.textToSpeech';
-
-const displayOptions = {
-	show: {
-		resource: ['speech'],
-	},
-};
+import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
+import { defaultSettings } from '../config';
+import { returnBinary } from '../methods/returnBinary';
+import { binaryNameParameter, fileNameParameter } from './shared/parameters';
 
 const defaultStability = defaultSettings.stability;
 const defaultSimilarity_boost = defaultSettings.similarity_boost;
 const defaultStyle = defaultSettings.style;
 
-export const SpeechOperation: INodeProperties[] = [
+export const SpeechOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		displayOptions,
-		options: [textToSpeechOperation, speechToSpeechOperation],
-		default: '',
+		displayOptions: {
+			show: {
+				resource: ['speech'],
+			},
+		},
+		options: [
+			{
+				name: 'Text to Speech',
+				value: 'text-to-speech',
+				action: 'Generate speech from text',
+				description: 'Generate a speech from a text',
+			},
+			{
+				name: 'Speech to Speech',
+				value: 'speech-to-speech',
+				action: 'Generate speech from speech',
+				description: 'Generate a speech from a speech',
+				routing: {
+					send: {
+						preSend: [preSendUploadAudio],
+					},
+					request: {
+						headers: {
+							'Content-Type': 'multipart/form-data',
+						},
+					},
+					output: {
+						postReceive: [returnBinary],
+					},
+				},
+			},
+		],
+		default: 'text-to-speech',
 		routing: {
 			request: {
 				url: '={{"/" + $parameter["operation"] + "/" + $parameter["voice_id"]}}',
@@ -43,9 +65,6 @@ export const SpeechOperation: INodeProperties[] = [
 						use_speaker_boost: '={{$parameter["additionalFields"]["use_speaker_boost"]}}',
 					},
 					seed: '={{$parameter["additionalFields"]["seed"]}}',
-					// Todo Implement dictionary locators
-					// pronunciation_dictionary_locators:
-					// 	'={{JSON.parse($parameter["additionalFields"]["pronunciation_dictionary_locators"])}}',
 				},
 			},
 			output: {
@@ -55,12 +74,58 @@ export const SpeechOperation: INodeProperties[] = [
 	},
 
 	// Text
-	...textToSpeechParameters,
+	{
+		displayName: 'Text',
+		description: 'The Text to transform into Speech',
+		required: true,
+		name: 'text',
+		type: 'string',
+		default: 'Be good to people!',
+		displayOptions: {
+			show: {
+				operation: ['text-to-speech'],
+			},
+		},
+		routing: {
+			request: {
+				body: {
+					text: '={{$value}}',
+				},
+			},
+		},
+	},
 
 	// Voice ID
 	{
-		...voiceIdParameter,
-		displayOptions,
+		displayName: 'Voice ID',
+		description: 'The voice you want to use',
+		name: 'voice_id',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: null },
+		modes: [
+			{
+				displayName: 'From list',
+				name: 'list',
+				type: 'list',
+				hint: 'Choose from list',
+				typeOptions: {
+					searchListMethod: 'listVoices',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'ID',
+				name: 'id',
+				type: 'string',
+				hint: 'Enter an ID',
+				placeholder: 'XYZ123',
+			},
+		],
+		displayOptions: {
+			show: {
+				resource: ['speech'],
+			},
+		},
 		required: true,
 	},
 
@@ -71,7 +136,11 @@ export const SpeechOperation: INodeProperties[] = [
 		type: 'collection',
 		default: {},
 		placeholder: 'Add Fields',
-		displayOptions,
+		displayOptions: {
+			show: {
+				resource: ['speech'],
+			},
+		},
 		options: [
 			binaryNameParameter,
 			fileNameParameter,
@@ -163,20 +232,19 @@ export const SpeechOperation: INodeProperties[] = [
 				type: 'number',
 				default: 0,
 			},
-			// TODO: pronunciation_dictionary_locators
-			// 			{
-			// 				displayName: 'Pronunciation Dictionary Locators',
-			// 				description:
-			// 					'A list of pronunciation dictionary locators (ID, version_id) to be applied to the text. (up to 3).',
-			// 				name: 'pronunciation_dictionary_locators',
-			// 				type: 'json',
-			// 				default: `[
-			// 	{
-			// 		"pronunciation_dictionary_id": "xxx",
-			// 		"version_id": "1"
-			// 	}
-			// ]`,
-			// 			},
 		],
 	},
 ];
+
+async function preSendUploadAudio(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
+	const formData = new FormData();
+	const audioBuffer = await this.helpers.getBinaryDataBuffer('data');
+
+	formData.append('audio', new Blob([audioBuffer]));
+	requestOptions.body = formData;
+
+	return requestOptions;
+}

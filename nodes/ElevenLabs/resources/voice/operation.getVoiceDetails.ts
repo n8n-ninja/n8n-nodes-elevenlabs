@@ -37,6 +37,10 @@ export const getVoiceDetailsParameters: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		description: 'Whether returns voice settings',
-		displayOptions,
+		displayOptions: {
+			show: {
+				operation: ['get-voice-details'],
+			},
+		},
 	},
 ];

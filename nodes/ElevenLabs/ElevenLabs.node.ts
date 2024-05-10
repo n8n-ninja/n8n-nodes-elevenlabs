@@ -1,16 +1,17 @@
 import { INodeType, INodeTypeDescription } from 'n8n-workflow';
-import { BASE_URL } from './config';
-import { debugRequest } from './methods/debugRequest';
 import { listSearch } from './methods/listSearch';
 import { loadOptions } from './methods/loadOptions';
-import { HistoryOperations } from './resources/history/History.resource';
-import { SpeechOperation } from './resources/speech/Speech.resource';
-import { UserOperations } from './resources/user/User.resource';
-import { VoiceOperations } from './resources/voice/Voice.resource';
+import { SpeechOperations } from './resources/speech';
+import { VoiceOperations } from './resources/voice';
+
+// import { debugRequest } from './methods/debugRequest';
+// import { HistoryOperations } from './resources/history/History.resource';
+
+// import { UserOperations } from './resources/user/User.resource';
 
 export class ElevenLabs implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'ElevenLabs',
+		displayName: 'ElevenLabs - Beta',
 		name: 'elevenLabs',
 		icon: 'file:elevenlabs.svg',
 		group: ['transform'],
@@ -30,7 +31,7 @@ export class ElevenLabs implements INodeType {
 		],
 		requestDefaults: {
 			method: 'POST',
-			baseURL: BASE_URL,
+			baseURL: 'https://api.elevenlabs.io/v1',
 			headers: {
 				'Content-Type': 'application/json',
 			},
@@ -51,27 +52,19 @@ export class ElevenLabs implements INodeType {
 						name: 'Voice',
 						value: 'voice',
 					},
-					{
-						name: 'History',
-						value: 'history',
-					},
-					{
-						name: 'User',
-						value: 'user',
-					},
 				],
-				default: 'voice',
-				routing: {
-					send: {
-						preSend: [debugRequest],
-					},
-				},
+				default: 'speech',
+				// routing: {
+				// 	send: {
+				// 		preSend: [debugRequest],
+				// 	},
+				// },
 			},
 
-			...SpeechOperation,
+			...SpeechOperations,
 			...VoiceOperations,
-			...HistoryOperations,
-			...UserOperations,
+			// ...HistoryOperations,
+			// ...UserOperations,
 		],
 	};
 
