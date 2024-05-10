@@ -6,8 +6,8 @@ import { binaryNameParameter, fileNameParameter } from '../shared/parameters';
 export const getHistoryAudioOperation: INodePropertyOptions = {
 	name: 'Get History Audio',
 	value: 'get-history-audio',
-	action: 'Returns an history audio',
-	description: 'Returns the audio of an history item',
+	action: 'Download history item audio',
+	description: 'Downloads the audio of an history item',
 	routing: {
 		request: {
 			method: 'GET',

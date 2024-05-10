@@ -10,7 +10,7 @@ const defaultAccentStrength = 1;
 export const generateVoiceOperation: INodePropertyOptions = {
 	name: 'Generate Voice',
 	value: 'generate-voice',
-	action: 'Generates a new voice',
+	action: 'Generate new voice',
 	description: 'Generates a new unique random voice based on parameters',
 	routing: {
 		request: {

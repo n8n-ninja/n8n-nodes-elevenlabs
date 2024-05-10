@@ -10,7 +10,7 @@ import { voiceDescriptionAndLabels, voiceName } from '../shared/parameters';
 export const cloneVoiceOperation: INodePropertyOptions = {
 	name: 'Clone Voice',
 	value: 'clone-voice',
-	action: 'Clones a voice',
+	action: 'Clone voice',
 	description: 'Clones a voice from an mp3 file and adds it to your library',
 	routing: {
 		send: {

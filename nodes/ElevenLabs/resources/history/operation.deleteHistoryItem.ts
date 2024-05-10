@@ -4,8 +4,8 @@ import { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 export const deleteHistoryItemOperation: INodePropertyOptions = {
 	name: 'Delete History Item',
 	value: 'delete-history-item',
-	action: 'Delete an history item',
-	description: 'Delete a history item by its ID',
+	action: 'Delete history item',
+	description: 'Delete an history item by its ID',
 	routing: {
 		request: {
 			method: 'DELETE',

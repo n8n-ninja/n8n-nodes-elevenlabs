@@ -5,7 +5,7 @@ import { voiceDescriptionAndLabels, voiceName } from '../shared/parameters';
 export const createVoiceOperation: INodePropertyOptions = {
 	name: 'Create Voice',
 	value: 'create-voice',
-	action: 'Creates a new voice',
+	action: 'Create voice from generated ID',
 	description: 'Creates a voice from a generated voice, adds it to your library',
 	routing: {
 		request: {

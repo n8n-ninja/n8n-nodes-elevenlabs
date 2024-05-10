@@ -5,8 +5,8 @@ import { voiceIdParameter } from '../shared/parameters';
 export const getVoiceDetailsOperation: INodePropertyOptions = {
 	name: 'Get Voice Details',
 	value: 'get-voice-details',
-	action: 'Returns voice details',
-	description: 'Returns all details about one voice',
+	action: 'Get voice details',
+	description: 'Returns all the details about one voice',
 	routing: {
 		request: {
 			method: 'GET',

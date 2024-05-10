@@ -2,7 +2,7 @@ import { INodeProperties } from 'n8n-workflow';
 import { generateVoiceOperation, generateVoiceParameters } from './operation.generateVoice';
 import { createVoiceOperation, createVoiceParameters } from './operation.createVoice';
 import { deleteVoiceOperation, deleteVoiceParameters } from './operation.deleteVoice';
-import { getMyVoicesOperation, getMyVoicesParameters } from './operation.getMyVoices';
+import { listVoicesOperation, listVoicesParameters } from './operation.listVoices';
 import { cloneVoiceOperation, cloneVoiceParameters } from './operation.cloneVoice';
 import { getVoiceDetailsOperation, getVoiceDetailsParameters } from './operation.getVoiceDetails';
 
@@ -18,11 +18,11 @@ export const VoiceOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			getMyVoicesOperation,
-			getVoiceDetailsOperation,
+			listVoicesOperation,
 			generateVoiceOperation,
 			createVoiceOperation,
 			cloneVoiceOperation,
+			getVoiceDetailsOperation,
 			deleteVoiceOperation,
 		],
 		default: '',
@@ -34,5 +34,5 @@ export const VoiceOperations: INodeProperties[] = [
 	...generateVoiceParameters,
 	...createVoiceParameters,
 	...cloneVoiceParameters,
-	...getMyVoicesParameters,
+	...listVoicesParameters,
 ];

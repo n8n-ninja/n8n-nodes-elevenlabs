@@ -1,11 +1,11 @@
 import { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 
 /* Operation */
-export const getMyVoicesOperation: INodePropertyOptions = {
-	name: 'Get My Voices',
-	value: 'get-my-voices',
-	action: 'Returns my voices',
-	description: 'Returns a list of the voices from my library',
+export const listVoicesOperation: INodePropertyOptions = {
+	name: 'List Voices',
+	value: 'list-voices',
+	action: 'List voices',
+	description: 'Returns a list of the voices from the user library',
 	routing: {
 		request: {
 			method: 'GET',
@@ -47,12 +47,12 @@ export const getMyVoicesOperation: INodePropertyOptions = {
 
 const displayOptions = {
 	show: {
-		operation: ['get-my-voices'],
+		operation: ['list-voices'],
 	},
 };
 
 /* Parameters */
-export const getMyVoicesParameters: INodeProperties[] = [
+export const listVoicesParameters: INodeProperties[] = [
 	{
 		displayName: 'Simplify Output',
 		name: 'simplify',

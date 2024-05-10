@@ -5,7 +5,7 @@ import { voiceIdParameter } from '../shared/parameters';
 export const getHistoryOperation: INodePropertyOptions = {
 	name: 'Get History',
 	value: 'get-history',
-	action: 'Returns history',
+	action: 'Get history',
 	description: 'Returns metadata about all your generated audio',
 	routing: {
 		request: {

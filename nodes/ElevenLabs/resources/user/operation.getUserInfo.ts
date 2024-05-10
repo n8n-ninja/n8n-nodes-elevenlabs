@@ -4,8 +4,8 @@ import { INodePropertyOptions } from 'n8n-workflow';
 export const getUserInfoOperation: INodePropertyOptions = {
 	name: 'Get User Info',
 	value: 'get-user-info',
-	action: 'Returns user information',
-	description: 'Gets information about the user',
+	action: 'Get user info',
+	description: 'Returns information about the active user',
 	routing: {
 		request: {
 			method: 'GET',

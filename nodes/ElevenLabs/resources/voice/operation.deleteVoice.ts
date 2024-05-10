@@ -5,7 +5,7 @@ import { voiceIdParameter } from '../shared/parameters';
 export const deleteVoiceOperation: INodePropertyOptions = {
 	name: 'Delete Voice',
 	value: 'delete-voice',
-	action: 'Delete a voice',
+	action: 'Delete voice',
 	description: 'Delete a voice from your library',
 	routing: {
 		request: {
