@@ -1,9 +1,8 @@
 import type { ILoadOptionsFunctions } from 'n8n-workflow';
-import { BASE_URL } from '../config';
 
 async function loadResource(this: ILoadOptionsFunctions, resource: 'genders' | 'ages' | 'accents') {
 	const results = await this.helpers.httpRequest({
-		url: `${BASE_URL}/voice-generation/generate-voice/parameters`,
+		url: 'https://api.elevenlabs.io/v1/voice-generation/generate-voice/parameters',
 	});
 
 	return results[resource].map((entry: { name: string; code: string }) => ({
@@ -14,7 +13,7 @@ async function loadResource(this: ILoadOptionsFunctions, resource: 'genders' | '
 
 async function loadModels(this: ILoadOptionsFunctions) {
 	const results = await this.helpers.httpRequestWithAuthentication.call(this, 'elevenLabsApi', {
-		url: `${BASE_URL}/models`,
+		url: 'https://api.elevenlabs.io/v1/models',
 	});
 
 	return results.map((entry: { name: string; model_id: string }) => ({

@@ -1,11 +1,10 @@
-import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
-import { defaultSettings } from '../config';
-import { returnBinary } from '../methods/returnBinary';
-import { binaryNameParameter, fileNameParameter } from './shared/parameters';
-
-const defaultStability = defaultSettings.stability;
-const defaultSimilarity_boost = defaultSettings.similarity_boost;
-const defaultStyle = defaultSettings.style;
+import {
+	IExecuteSingleFunctions,
+	IHttpRequestOptions,
+	IN8nHttpFullResponse,
+	INodeExecutionData,
+	INodeProperties,
+} from 'n8n-workflow';
 
 export const SpeechOperations: INodeProperties[] = [
 	{
@@ -59,9 +58,9 @@ export const SpeechOperations: INodeProperties[] = [
 				body: {
 					model_id: '={{$parameter["additionalFields"]["model_id"]}}',
 					voice_settings: {
-						stability: `={{$parameter["additionalFields"]["stability"] || ${defaultSettings.stability}}}`,
-						similarity_boost: `={{$parameter["additionalFields"]["similarity_boost"] || ${defaultSettings.similarity_boost}}}`,
-						style: `={{$parameter["additionalFields"]["style"] || ${defaultSettings.style}}}`,
+						stability: `={{$parameter["additionalFields"]["stability"] || 0.5 }}`,
+						similarity_boost: `={{$parameter["additionalFields"]["similarity_boost"] || 0.75 }}`,
+						style: `={{$parameter["additionalFields"]["style"] || 0 }}`,
 						use_speaker_boost: '={{$parameter["additionalFields"]["use_speaker_boost"]}}',
 					},
 					seed: '={{$parameter["additionalFields"]["seed"]}}',
@@ -142,8 +141,20 @@ export const SpeechOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			binaryNameParameter,
-			fileNameParameter,
+			{
+				displayName: 'Binary Name',
+				description: 'Change the output binary name',
+				name: 'binary_name',
+				type: 'string',
+				default: 'data',
+			},
+			{
+				displayName: 'File Name',
+				description: 'Change the output file name',
+				name: 'file_name',
+				type: 'string',
+				default: 'voice',
+			},
 			// optimize_streaming_latency
 			{
 				displayName: 'Streaming Latency',
@@ -183,7 +194,7 @@ export const SpeechOperations: INodeProperties[] = [
 				description: 'Define voice stability',
 				name: 'stability',
 				type: 'number',
-				default: defaultStability,
+				default: 0.5,
 				typeOptions: {
 					maxValue: 1,
 					minValue: 0,
@@ -196,7 +207,7 @@ export const SpeechOperations: INodeProperties[] = [
 				description: 'Define voice similarity boost',
 				name: 'similarity_boost',
 				type: 'number',
-				default: defaultSimilarity_boost,
+				default: 0.75,
 				typeOptions: {
 					maxValue: 1,
 					minValue: 0,
@@ -209,11 +220,11 @@ export const SpeechOperations: INodeProperties[] = [
 				description: 'Exaggerate voice style',
 				name: 'style',
 				type: 'number',
-				default: defaultStyle,
+				default: 0,
 				typeOptions: {
-					maxValue: 100,
+					maxValue: 1,
 					minValue: 0,
-					numberStepSize: 1,
+					numberStepSize: 0.01,
 				},
 			},
 			// use_speaker_boost
@@ -247,4 +258,21 @@ async function preSendUploadAudio(
 	requestOptions.body = formData;
 
 	return requestOptions;
+}
+
+async function returnBinary<PostReceiveAction>(
+	this: IExecuteSingleFunctions,
+	items: INodeExecutionData[],
+	responseData: IN8nHttpFullResponse,
+): Promise<INodeExecutionData[]> {
+	const binary_name = this.getNodeParameter('additionalFields["binary_name"]', 'data') as string;
+	const file_name = this.getNodeParameter('additionalFields["file_name"]', 'voice') as string;
+
+	const binaryData = await this.helpers.prepareBinaryData(
+		responseData.body as Buffer,
+		file_name,
+		'audio/mp3',
+	);
+
+	return items.map(() => ({ json: responseData.headers, binary: { [binary_name]: binaryData } }));
 }
