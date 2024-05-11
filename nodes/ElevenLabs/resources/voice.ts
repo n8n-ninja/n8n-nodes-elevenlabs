@@ -110,7 +110,7 @@ export const VoiceOperations: INodeProperties[] = [
 						method: 'POST',
 						body: {
 							voice_name: '={{$parameter["name"]}}',
-							description:
+							voice_description:
 								'={{$parameter["additionalFields"]["description"] || "Generated with n8n"}}',
 							labels: '={{JSON.parse($parameter["additionalFields"]["labels"]) || {} }}',
 							generated_voice_id: '={{$parameter["generated_voice_id"]}}',

@@ -1,6 +1,6 @@
 {
-	"name": "n8n-nodes-elevenlabs",
-	"version": "0.0.15",
+	"name": "n8n-nodes-elevenlabs-beta",
+	"version": "0.0.16",
 	"description": "n8n node to call ElevenLabs speech to text and text to speech methods.",
 	"keywords": [
 		"n8n-community-node-package"
