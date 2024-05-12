@@ -1,32 +1,28 @@
 # n8n-nodes-elevenlabs
 
-This is an n8n community node. It lets you use **ElevenLabs in your n8n workflows**.
+> **Currently in BETA and under active development.**
 
-**ElevenLabs** creates the most realistic, versatile and contextually-aware AI audio, providing the ability to generate speech in hundreds of new and existing voices in 29 languages.
+This n8n community node enables seamless integration of **[ElevenLabs](http://go.n8n.ninja/elevenlabs) in your [n8n](http://go.n8n.ninja/tryn8n) workflows**.
 
-[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
+**[ElevenLabs](http://go.n8n.ninja/elevenlabs)** offers cutting-edge, contextually aware AI voices, allowing you to generate lifelike speech in hundreds of unique and familiar voices across dozens of languages.
 
-[Installation](#installation)  
-[Operations](#operations)  
-[Credentials](#credentials)
-[Compatibility](#compatibility)  
-[Usage](#usage)
-[Resources](#resources)  
-[Version history](#version-history)
+**[n8n](http://go.n8n.ninja/tryn8n)** is a powerful, AI-native, open-source workflow automation tool. Connect hundreds of services and rapidly create complex solutions with ease.
+
+[![Watch Teaser](https://www.n8n.ninja/images/nodes/elevenlabs/cover-play-youtube.png)](https://youtu.be/R2qFRdu8CMY)
+Watch the teaser and visit the [Official node page](https://go.n8n.ninja/811)
+
+## Features
+
+- **Text to speech**: Turn any text into a high quality audio, lifelike, context-aware speech audio file that you can manipulate in your workflow.
+- **Speech to speech**: Transform your voice into an other character, preserving emotions and deliver with consistency.
+- **Generate voice**: Generate a new voice based on settings like age, gender, accent... add it to your library and start using it your workflow.
+- **Clone your voice**: Clone your own voice from an audio file and use it in your workflow, for text to speech or speech to speech.
+
+And more: voice library, user and history management.
 
 ## Installation
 
 Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
-
-## Operations
-
-- **Text to speech**: converts text into lifelike speech.
-- **Speech to speech**: transform uploaded speech so it sounds like it was spoken by another voice.
-- **Generate voice**: generate a random voice based on parameters, and **Create voice**, to save a generated voice to your library.
-- **Clone your voice**: generate a new voice based on audio file.
-- **Voice management**: delete voices.
-- **Audio generation history**: retrieve your history, download audios or delete history items.
-- **User info and subscription**: retrieve your usage metadata (such as used token)
 
 ## Credentials
 
@@ -34,12 +30,7 @@ To use this node, you need to have an [elevenlabs.io](http://go.n8n.ninja/eleven
 
 ## Compatibility
 
-Only tested on latest version (1.39.1 and above)
-
-## Usage
-
-Everything should be quite straight forward.
-Important usage
+1.39.1 and above
 
 ## Resources
 

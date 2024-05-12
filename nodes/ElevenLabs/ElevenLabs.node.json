@@ -6,12 +6,12 @@
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://github.com/n8n-ninja/n8n-nodes-elevenlabs"
+				"url": "http://go.n8n.ninja/811"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://github.com/n8n-ninja/n8n-nodes-elevenlabs"
+				"url": "http://go.n8n.ninja/811"
 			}
 		]
 	}

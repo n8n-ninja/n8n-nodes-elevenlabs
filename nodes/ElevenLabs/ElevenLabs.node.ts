@@ -9,13 +9,13 @@ import { VoiceOperations } from './resources/voice';
 
 export class ElevenLabs implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'ElevenLabs - Beta',
+		displayName: 'ElevenLabs',
 		name: 'elevenLabs',
 		icon: 'file:elevenlabs.svg',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Generate and manipulate AI voice using ElevenLabs and n8n.',
+		description: 'WIP',
 		defaults: {
 			name: 'ElevenLabs',
 		},
@@ -35,6 +35,14 @@ export class ElevenLabs implements INodeType {
 			},
 		},
 		properties: [
+			{
+				displayName: `This node is currently in <b>BETA</b> and under active development.<br/>
+				<a href="http://go.n8n.ninja/811" target="_blank">Visit this page</a> for more information or <a href="http://go.n8n.ninja/x" target="_blank">contact the n8Ninja on X</a>.<br/><br/>
+				To support my work, please <a href="https://youtu.be/R2qFRdu8CMY" target="_blank">share this youtube video</a> 🥷🙏`,
+				name: 'notice',
+				type: 'notice',
+				default: '',
+			},
 			{
 				displayName: 'Resource',
 				name: 'resource',
