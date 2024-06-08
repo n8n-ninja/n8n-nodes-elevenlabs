@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-elevenlabs",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Complete implementation of ElevenLabs AI voice generation into n8n workflows.",
 	"keywords": [
 		"n8n-community-node-package",

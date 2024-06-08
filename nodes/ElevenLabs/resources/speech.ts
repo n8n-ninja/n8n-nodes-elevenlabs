@@ -23,6 +23,11 @@ export const SpeechOperations: INodeProperties[] = [
 				value: 'text-to-speech',
 				action: 'Generate speech from text',
 				description: 'Generate a speech from a text',
+				routing: {
+					send: {
+						preSend: [preSendText],
+					},
+				},
 			},
 			{
 				name: 'Speech to Speech',
@@ -55,16 +60,6 @@ export const SpeechOperations: INodeProperties[] = [
 				},
 				returnFullResponse: true,
 				encoding: 'arraybuffer',
-				body: {
-					model_id: '={{$parameter["additionalFields"]["model_id"]}}',
-					voice_settings: {
-						stability: `={{$parameter["additionalFields"]["stability"] || 0.5 }}`,
-						similarity_boost: `={{$parameter["additionalFields"]["similarity_boost"] || 0.75 }}`,
-						style: `={{$parameter["additionalFields"]["style"] || 0 }}`,
-						use_speaker_boost: '={{$parameter["additionalFields"]["use_speaker_boost"]}}',
-					},
-					seed: '={{$parameter["additionalFields"]["seed"]}}',
-				},
 			},
 			output: {
 				postReceive: [returnBinary],
@@ -83,13 +78,6 @@ export const SpeechOperations: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				operation: ['text-to-speech'],
-			},
-		},
-		routing: {
-			request: {
-				body: {
-					text: '={{$value}}',
-				},
 			},
 		},
 	},
@@ -243,6 +231,15 @@ export const SpeechOperations: INodeProperties[] = [
 				type: 'number',
 				default: 0,
 			},
+			// stitching
+			{
+				displayName: 'Stitching',
+				description:
+					'Whether stitching is activated (give the model context by passing past and previous text)',
+				name: 'stitching',
+				type: 'boolean',
+				default: true,
+			},
 		],
 	},
 ];
@@ -256,6 +253,51 @@ async function preSendUploadAudio(
 
 	formData.append('audio', new Blob([audioBuffer]));
 	requestOptions.body = formData;
+
+	return requestOptions;
+}
+
+async function preSendText(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
+	const text = this.getNodeParameter('text') as string;
+	const model_id = this.getNodeParameter('model_id', null) as string;
+	const seed = this.getNodeParameter('seed', 0) as string;
+
+	const stability = this.getNodeParameter('additionalFields.stability', 0.5);
+	const similarity_boost = this.getNodeParameter('additionalFields.similarity_boost', 1);
+	const style = this.getNodeParameter('additionalFields.style', 0);
+	const use_speaker_boost = this.getNodeParameter('additionalFields.use_speaker_boost', true);
+	const stitching = this.getNodeParameter('additionalFields.stitching', false);
+
+	const data: any = {
+		text: text,
+		voice_settings: {
+			stability: stability,
+			similarity_boost: similarity_boost,
+			style: style,
+			use_speaker_boost: use_speaker_boost,
+		},
+	};
+
+	// Stitching
+	if (stitching) {
+		if (seed) data.seed = seed;
+		if (model_id) data.model_id = model_id;
+
+		const runIndex = this.getItemIndex();
+		const texts: string[] = [];
+
+		this.getExecuteData().data.main[0]?.forEach((text) => {
+			texts.push(text.json.text as string);
+		});
+
+		if (runIndex > 0) data.previous_text = texts[runIndex - 1];
+		if (runIndex < texts.length - 1) data.next_text = texts[runIndex + 1];
+	}
+
+	requestOptions.body = data;
 
 	return requestOptions;
 }
