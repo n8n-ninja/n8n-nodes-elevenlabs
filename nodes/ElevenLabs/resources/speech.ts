@@ -174,7 +174,7 @@ export const SpeechOperations: INodeProperties[] = [
 				typeOptions: {
 					loadOptionsMethod: 'listModels',
 				},
-				default: '',
+				default: 'eleven_multilingual_v2',
 			},
 			// stability
 			{
@@ -273,6 +273,7 @@ async function preSendText(
 
 	const data: any = {
 		text: text,
+		model_id: model_id,
 		voice_settings: {
 			stability: stability,
 			similarity_boost: similarity_boost,
