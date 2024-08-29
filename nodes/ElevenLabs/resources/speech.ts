@@ -240,6 +240,15 @@ export const SpeechOperations: INodeProperties[] = [
 				type: 'boolean',
 				default: true,
 			},
+			// language_id
+			{
+				displayName: 'Language',
+				description:
+					'Enforce model to produce audio in a specific language. If not set, the model will use the language of the input text.',
+				name: 'language_id',
+				type: 'string',
+				default: '',
+			},
 		],
 	},
 ];
@@ -270,6 +279,7 @@ async function preSendText(
 	const style = this.getNodeParameter('additionalFields.style', 0);
 	const use_speaker_boost = this.getNodeParameter('additionalFields.use_speaker_boost', true);
 	const stitching = this.getNodeParameter('additionalFields.stitching', false);
+	const language_id = this.getNodeParameter('additionalFields.language', '');
 
 	const data: any = {
 		text: text,
@@ -281,6 +291,10 @@ async function preSendText(
 			use_speaker_boost: use_speaker_boost,
 		},
 	};
+
+	if (language_id !== '') {
+		data.language_id = language_id;
+	}
 
 	// Stitching
 	if (stitching) {
