@@ -34,7 +34,7 @@ export const SpeechOperations: INodeProperties[] = [
 				name: 'Voice changer',
 				value: 'voice-changer',
 				action: 'Voice changer',
-				description: 'Generate a speech from a speech',
+				description: 'Transform audio from one voice to another',
 				routing: {
 					send: {
 						preSend: [preSendUploadAudio],
@@ -58,6 +58,7 @@ export const SpeechOperations: INodeProperties[] = [
 					optimize_streaming_latency:
 						'={{$parameter["additionalFields"]["optimize_streaming_latency"]}}',
 					output_format: '={{$parameter["additionalFields"]["output_format"]}}',
+					enable_logging: '={{$parameter["additionalFields"]["enable_logging"]}}',
 				},
 				returnFullResponse: true,
 				encoding: 'arraybuffer',
@@ -82,6 +83,22 @@ export const SpeechOperations: INodeProperties[] = [
 			},
 		},
 	},
+	
+	// Audio Input for Voice Changer
+	{
+		displayName: 'Binary Input Field',
+		name: 'binaryInputField',
+		type: 'string',
+		default: 'data',
+		required: true,
+		description: 'Name of the binary property that contains the audio file to transform',
+		displayOptions: {
+			show: {
+				operation: ['voice-changer'],
+			},
+		},
+	},
+	
 
 	// Voice ID
 	{
@@ -320,6 +337,19 @@ export const SpeechOperations: INodeProperties[] = [
 					},
 				},
 			},
+			// Remove Background Noise (voice-changer specific)
+			{
+				displayName: 'Remove Background Noise',
+				description: 'Whether to remove background noise from the audio input',
+				name: 'remove_background_noise',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						'/operation': ['voice-changer'],
+					},
+				},
+			},
 		],
 	},
 ];
@@ -328,12 +358,67 @@ async function preSendUploadAudio(
 	this: IExecuteSingleFunctions,
 	requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
+	const binaryInputField = this.getNodeParameter('binaryInputField', 'data') as string;
+	const additionalFields = this.getNodeParameter('additionalFields', {}) as IDataObject;
+	
+	// Get binary data
+	const audioBuffer = await this.helpers.getBinaryDataBuffer(binaryInputField);
+	
+	// Create form data
 	const formData = new FormData();
-	const audioBuffer = await this.helpers.getBinaryDataBuffer('data');
-
 	formData.append('audio', new Blob([audioBuffer]));
+	
+	// Add model_id if provided
+	if (additionalFields.model_id) {
+		formData.append('model_id', additionalFields.model_id as string);
+	}
+	
+	// Add seed if provided and not 0
+	if (additionalFields.seed && (additionalFields.seed as number) !== 0) {
+		formData.append('seed', additionalFields.seed as string);
+	}
+	
+	// Add remove_background_noise if provided
+	if (additionalFields.remove_background_noise !== undefined) {
+		formData.append('remove_background_noise', String(additionalFields.remove_background_noise));
+	}
+	
+	// Handle voice settings
+	// Create voice settings from individual parameters
+	const voiceSettings = {
+		stability: additionalFields.stability || 0.5,
+		similarity_boost: additionalFields.similarity_boost || 0.75,
+		style: additionalFields.style || 0,
+		use_speaker_boost: additionalFields.use_speaker_boost || false,
+	};
+	
+	formData.append('voice_settings', JSON.stringify(voiceSettings));
+	
+	// Add query parameters
+	if (additionalFields.enable_logging !== undefined) {
+		requestOptions.qs = {
+			...requestOptions.qs,
+			enable_logging: additionalFields.enable_logging,
+		};
+	}
+	
+	// Add output format if provided
+	if (additionalFields.output_format) {
+		requestOptions.qs = {
+			...requestOptions.qs,
+			output_format: additionalFields.output_format,
+		};
+	}
+	
+	// Add streaming latency if provided
+	if (additionalFields.optimize_streaming_latency !== undefined) {
+		requestOptions.qs = {
+			...requestOptions.qs,
+			optimize_streaming_latency: additionalFields.optimize_streaming_latency,
+		};
+	}
+	
 	requestOptions.body = formData;
-
 	return requestOptions;
 }
 
