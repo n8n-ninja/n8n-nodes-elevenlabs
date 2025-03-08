@@ -67,6 +67,26 @@ export const SpeechOperations: INodeProperties[] = [
 					},
 				},
 			},
+			{
+				name: 'Create Sound Effects',
+				value: 'sound-generation',
+				action: 'Create sound effects',
+				description: 'Generate realistic sound effects from text descriptions',
+				routing: {
+					request: {
+						url: '/sound-generation',
+						method: 'POST',
+						returnFullResponse: true,
+						encoding: 'arraybuffer',
+					},
+					send: {
+						preSend: [preSendSoundEffects],
+					},
+					output: {
+						postReceive: [returnBinary],
+					},
+				},
+			},
 		],
 		default: 'text-to-speech',
 	},
@@ -119,6 +139,30 @@ export const SpeechOperations: INodeProperties[] = [
 			},
 		},
 	},
+	{
+		displayName: 'Request Configuration',
+		name: 'requestConfigurationSoundEffects',
+		type: 'hidden',
+		default: '',
+		displayOptions: {
+			show: {
+				operation: ['sound-generation'],
+			},
+		},
+		routing: {
+			request: {
+				url: '/sound-generation',
+				qs: {
+					output_format: '={{$parameter["additionalFields"]["output_format"]}}',
+				},
+				returnFullResponse: true,
+				encoding: 'arraybuffer',
+			},
+			output: {
+				postReceive: [returnBinary],
+			},
+		},
+	},
 
 	// Text
 	{
@@ -137,7 +181,25 @@ export const SpeechOperations: INodeProperties[] = [
 			},
 		},
 	},
-	
+
+	// Sound Effect Description
+	{
+		displayName: 'Sound Effect Description',
+		description: 'Describe the sound effect you want to generate',
+		required: true,
+		name: 'soundEffectText',
+		type: 'string',
+		default: 'Spacious braam suitable for high-impact movie trailer moments',
+		typeOptions: {
+			rows: 3,
+		},
+		displayOptions: {
+			show: {
+				operation: ['sound-generation'],
+			},
+		},
+	},
+
 	// Audio Input for Voice Changer
 	{
 		displayName: 'Binary Input Field',
@@ -152,7 +214,7 @@ export const SpeechOperations: INodeProperties[] = [
 			},
 		},
 	},
-	
+
 	// Audio Input for Transcript
 	{
 		displayName: 'Binary Input Field',
@@ -167,7 +229,7 @@ export const SpeechOperations: INodeProperties[] = [
 			},
 		},
 	},
-	
+
 
 	// Voice ID
 	{
@@ -223,6 +285,11 @@ export const SpeechOperations: INodeProperties[] = [
 				name: 'binary_name',
 				type: 'string',
 				default: 'data',
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer', 'sound-generation'],
+					},
+				},
 			},
 			{
 				displayName: 'File Name',
@@ -230,6 +297,11 @@ export const SpeechOperations: INodeProperties[] = [
 				name: 'file_name',
 				type: 'string',
 				default: 'voice',
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer', 'sound-generation'],
+					},
+				},
 			},
 			// optimize_streaming_latency
 			{
@@ -242,6 +314,11 @@ export const SpeechOperations: INodeProperties[] = [
 					maxValue: 4,
 					minValue: 0,
 					numberStepSize: 1,
+				},
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer'],
+					},
 				},
 			},
 			// output_format
@@ -260,6 +337,11 @@ export const SpeechOperations: INodeProperties[] = [
 					{ name: 'μ-law (8-bit, 8kHz)', value: 'ulaw_8000' },
 				],
 				default: 'mp3_44100_128',
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer', 'sound-generation'],
+					},
+				},
 			},
 			// language_code - New parameter from documentation
 			{
@@ -321,6 +403,11 @@ export const SpeechOperations: INodeProperties[] = [
 					minValue: 0,
 					numberStepSize: 0.01,
 				},
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer'],
+					},
+				},
 			},
 			// similarity_boost
 			{
@@ -333,6 +420,11 @@ export const SpeechOperations: INodeProperties[] = [
 					maxValue: 1,
 					minValue: 0,
 					numberStepSize: 0.01,
+				},
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer'],
+					},
 				},
 			},
 			// style
@@ -347,6 +439,11 @@ export const SpeechOperations: INodeProperties[] = [
 					minValue: 0,
 					numberStepSize: 0.01,
 				},
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer'],
+					},
+				},
 			},
 			// use_speaker_boost
 			{
@@ -355,6 +452,11 @@ export const SpeechOperations: INodeProperties[] = [
 				name: 'use_speaker_boost',
 				type: 'boolean',
 				default: false,
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer'],
+					},
+				},
 			},
 			// seed
 			{
@@ -367,6 +469,11 @@ export const SpeechOperations: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 4294967295,
 				},
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer'],
+					},
+				},
 			},
 			// Enable Logging (new parameter)
 			{
@@ -375,6 +482,11 @@ export const SpeechOperations: INodeProperties[] = [
 				name: 'enable_logging',
 				type: 'boolean',
 				default: true,
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech', 'voice-changer', 'speech-to-text'],
+					},
+				},
 			},
 			// Text Normalization (new parameter)
 			{
@@ -464,7 +576,7 @@ export const SpeechOperations: INodeProperties[] = [
 					},
 				},
 			},
-			
+
 			// Transcript model_id
 			{
 				displayName: 'Transcript Model ID',
@@ -554,6 +666,44 @@ export const SpeechOperations: INodeProperties[] = [
 					},
 				},
 			},
+
+			// Sound Effects - Duration Seconds
+			{
+				displayName: 'Duration (Seconds)',
+				description: 'Duration of the generated sound effect in seconds (0.5-22 seconds)',
+				name: 'duration_seconds',
+				type: 'number',
+				default: '',
+				placeholder: 'Auto',
+				typeOptions: {
+					minValue: 5,
+					maxValue: 10,
+					numberStepSize: 1,
+				},
+				displayOptions: {
+					show: {
+						'/operation': ['sound-generation'],
+					},
+				},
+			},
+			// Sound Effects - Prompt Influence
+			{
+				displayName: 'Prompt Influence',
+				description: 'Controls how closely the sound follows the prompt. Higher values = less variation but more faithful to prompt',
+				name: 'prompt_influence',
+				type: 'number',
+				default: 0.7,
+				typeOptions: {
+					minValue: 0,
+					maxValue: 1,
+					numberStepSize: 0.1,
+				},
+				displayOptions: {
+					show: {
+						'/operation': ['sound-generation'],
+					},
+				},
+			},
 		],
 	},
 ];
@@ -564,27 +714,27 @@ async function preSendUploadAudio(
 ): Promise<IHttpRequestOptions> {
 	const binaryInputField = this.getNodeParameter('binaryInputField', 'data') as string;
 	const additionalFields = this.getNodeParameter('additionalFields', {}) as IDataObject;
-	
+
 	// Get binary data
 	const audioBuffer = await this.helpers.getBinaryDataBuffer(binaryInputField);
-	
+
 	// Create form data
 	const formData = new FormData();
 	formData.append('audio', new Blob([audioBuffer]));
-	
+
 	// Add model_id with default if needed
 	formData.append('model_id', (additionalFields.model_id as string) || 'eleven_english_sts_v2');
-	
+
 	// Add seed if provided and not 0
 	if (additionalFields.seed && (additionalFields.seed as number) !== 0) {
 		formData.append('seed', additionalFields.seed as string);
 	}
-	
+
 	// Add remove_background_noise if provided
 	if (additionalFields.remove_background_noise !== undefined) {
 		formData.append('remove_background_noise', String(additionalFields.remove_background_noise));
 	}
-	
+
 	// Handle voice settings
 	// Create voice settings from individual parameters
 	const voiceSettings = {
@@ -593,9 +743,9 @@ async function preSendUploadAudio(
 		style: additionalFields.style || 0,
 		use_speaker_boost: additionalFields.use_speaker_boost || false,
 	};
-	
+
 	formData.append('voice_settings', JSON.stringify(voiceSettings));
-	
+
 	// Add query parameters
 	if (additionalFields.enable_logging !== undefined) {
 		requestOptions.qs = {
@@ -603,7 +753,7 @@ async function preSendUploadAudio(
 			enable_logging: additionalFields.enable_logging,
 		};
 	}
-	
+
 	// Add output format if provided
 	if (additionalFields.output_format) {
 		requestOptions.qs = {
@@ -611,7 +761,7 @@ async function preSendUploadAudio(
 			output_format: additionalFields.output_format,
 		};
 	}
-	
+
 	// Add streaming latency if provided
 	if (additionalFields.optimize_streaming_latency !== undefined) {
 		requestOptions.qs = {
@@ -619,7 +769,7 @@ async function preSendUploadAudio(
 			optimize_streaming_latency: additionalFields.optimize_streaming_latency,
 		};
 	}
-	
+
 	requestOptions.body = formData;
 	return requestOptions;
 }
@@ -695,16 +845,54 @@ async function preSendText(
 	return requestOptions;
 }
 
+async function preSendSoundEffects(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
+	const soundEffectText = this.getNodeParameter('soundEffectText') as string;
+	const additionalFields = this.getNodeParameter('additionalFields', {}) as IDataObject;
+
+	// Get the parameters
+	const duration_seconds = additionalFields.duration_seconds as number;
+	const prompt_influence = additionalFields.prompt_influence as number ?? 0.3;
+	const output_format = additionalFields.output_format as string;
+
+	// Build the request body
+	const data: IDataObject = {
+		text: soundEffectText,
+	};
+
+	// Add optional parameters
+	if (duration_seconds) {
+		data.duration_seconds = duration_seconds;
+	}
+
+	if (prompt_influence !== undefined) {
+		data.prompt_influence = prompt_influence;
+	}
+
+	// Add output_format to query parameters if provided
+	if (output_format) {
+		requestOptions.qs = {
+			...requestOptions.qs,
+			output_format,
+		};
+	}
+
+	requestOptions.body = data;
+	return requestOptions;
+}
+
 async function preSendTranscript(
 	this: IExecuteSingleFunctions,
 	requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
 	const binaryInputField = this.getNodeParameter('binaryInputField', 'data') as string;
 	const additionalFields = this.getNodeParameter('additionalFields', {}) as IDataObject;
-	
+
 	// Get binary data
 	const audioBuffer = await this.helpers.getBinaryDataBuffer(binaryInputField);
-	
+
 	// Get transcript parameters
 	const model_id = additionalFields.transcript_model_id as string || 'scribe_v1';
 	const language_code = additionalFields.transcript_language_code as string;
@@ -713,33 +901,33 @@ async function preSendTranscript(
 	const timestamps_granularity = additionalFields.timestamps_granularity as string;
 	const diarize = additionalFields.diarize as boolean;
 	const enable_logging = additionalFields.enable_logging as boolean;
-	
+
 	// Create form data
 	const formData = new FormData();
 	formData.append('file', new Blob([audioBuffer]));
 	formData.append('model_id', model_id);
-	
+
 	// Add optional parameters
 	if (language_code) {
 		formData.append('language_code', language_code);
 	}
-	
+
 	if (tag_audio_events !== undefined) {
 		formData.append('tag_audio_events', String(tag_audio_events));
 	}
-	
+
 	if (num_speakers) {
 		formData.append('num_speakers', String(num_speakers));
 	}
-	
+
 	if (timestamps_granularity) {
 		formData.append('timestamps_granularity', timestamps_granularity);
 	}
-	
+
 	if (diarize !== undefined) {
 		formData.append('diarize', String(diarize));
 	}
-	
+
 	// Add query parameters
 	if (enable_logging !== undefined) {
 		requestOptions.qs = {
@@ -747,7 +935,7 @@ async function preSendTranscript(
 			enable_logging,
 		};
 	}
-	
+
 	requestOptions.body = formData;
 	return requestOptions;
 }
@@ -758,7 +946,13 @@ async function returnBinary<PostReceiveAction>(
 	responseData: IN8nHttpFullResponse,
 ): Promise<INodeExecutionData[]> {
 	const binary_name = this.getNodeParameter('additionalFields["binary_name"]', 'data') as string;
-	const file_name = this.getNodeParameter('additionalFields["file_name"]', 'voice') as string;
+	let file_name = this.getNodeParameter('additionalFields["file_name"]', 'voice') as string;
+	const operation = this.getNodeParameter('operation') as string;
+
+	// Use a more appropriate default filename for sound effects
+	if (operation === 'sound-generation' && file_name === 'voice') {
+		file_name = 'sound_effect';
+	}
 
 	const binaryData = await this.helpers.prepareBinaryData(
 		responseData.body as Buffer,
