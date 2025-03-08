@@ -87,6 +87,29 @@ export const SpeechOperations: INodeProperties[] = [
 					},
 				},
 			},
+			{
+				name: 'Audio Isolation',
+				value: 'audio-isolation',
+				action: 'Audio isolation',
+				description: 'Removes background noise from audio and isolates vocals/speech',
+				routing: {
+					request: {
+						url: '/audio-isolation',
+						method: 'POST',
+						headers: {
+							'Content-Type': 'multipart/form-data',
+						},
+						returnFullResponse: true,
+						encoding: 'arraybuffer',
+					},
+					send: {
+						preSend: [preSendAudioIsolation],
+					},
+					output: {
+						postReceive: [returnBinary],
+					},
+				},
+			},
 		],
 		default: 'text-to-speech',
 	},
@@ -163,6 +186,27 @@ export const SpeechOperations: INodeProperties[] = [
 			},
 		},
 	},
+	{
+		displayName: 'Request Configuration',
+		name: 'requestConfigurationAudioIsolation',
+		type: 'hidden',
+		default: '',
+		displayOptions: {
+			show: {
+				operation: ['audio-isolation'],
+			},
+		},
+		routing: {
+			request: {
+				url: '/audio-isolation',
+				returnFullResponse: true,
+				encoding: 'arraybuffer',
+			},
+			output: {
+				postReceive: [returnBinary],
+			},
+		},
+	},
 
 	// Text
 	{
@@ -226,6 +270,21 @@ export const SpeechOperations: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				operation: ['speech-to-text'],
+			},
+		},
+	},
+	
+	// Audio Input for Audio Isolation
+	{
+		displayName: 'Binary Input Field',
+		name: 'binaryInputField',
+		type: 'string',
+		default: 'data',
+		required: true,
+		description: 'Name of the binary property that contains the audio file to isolate vocals/speech from',
+		displayOptions: {
+			show: {
+				operation: ['audio-isolation'],
 			},
 		},
 	},
@@ -883,6 +942,23 @@ async function preSendSoundEffects(
 	return requestOptions;
 }
 
+async function preSendAudioIsolation(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
+	const binaryInputField = this.getNodeParameter('binaryInputField', 'data') as string;
+	
+	// Get binary data
+	const audioBuffer = await this.helpers.getBinaryDataBuffer(binaryInputField);
+	
+	// Create form data
+	const formData = new FormData();
+	formData.append('audio', new Blob([audioBuffer]));
+	
+	requestOptions.body = formData;
+	return requestOptions;
+}
+
 async function preSendTranscript(
 	this: IExecuteSingleFunctions,
 	requestOptions: IHttpRequestOptions,
@@ -949,9 +1025,11 @@ async function returnBinary<PostReceiveAction>(
 	let file_name = this.getNodeParameter('additionalFields["file_name"]', 'voice') as string;
 	const operation = this.getNodeParameter('operation') as string;
 
-	// Use a more appropriate default filename for sound effects
+	// Use more appropriate default filenames based on operation
 	if (operation === 'sound-generation' && file_name === 'voice') {
 		file_name = 'sound_effect';
+	} else if (operation === 'audio-isolation' && file_name === 'voice') {
+		file_name = 'isolated_audio';
 	}
 
 	const binaryData = await this.helpers.prepareBinaryData(
