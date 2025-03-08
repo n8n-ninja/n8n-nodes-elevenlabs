@@ -4,6 +4,7 @@ import {
 	IN8nHttpFullResponse,
 	INodeExecutionData,
 	INodeProperties,
+	IDataObject,
 } from 'n8n-workflow';
 
 export const SpeechOperations: INodeProperties[] = [
@@ -21,7 +22,7 @@ export const SpeechOperations: INodeProperties[] = [
 			{
 				name: 'Text to Speech',
 				value: 'text-to-speech',
-				action: 'Generate speech from text',
+				action: 'Text to Speech',
 				description: 'Generate a speech from a text',
 				routing: {
 					send: {
@@ -30,9 +31,9 @@ export const SpeechOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Speech to Speech',
-				value: 'speech-to-speech',
-				action: 'Generate speech from speech',
+				name: 'Voice changer',
+				value: 'voice-changer',
+				action: 'Voice changer',
 				description: 'Generate a speech from a speech',
 				routing: {
 					send: {
@@ -146,7 +147,7 @@ export const SpeechOperations: INodeProperties[] = [
 			// optimize_streaming_latency
 			{
 				displayName: 'Streaming Latency',
-				description: 'Turn on latency optimizations at some cost of quality',
+				description: 'Turn on latency optimizations at some cost of quality. Values: 0 (default - no optimizations), 1 (normal - 50% improvement), 2 (strong - 75% improvement), 3 (max), 4 (max with text normalizer off)',
 				name: 'optimize_streaming_latency',
 				type: 'number',
 				default: 0,
@@ -161,8 +162,26 @@ export const SpeechOperations: INodeProperties[] = [
 				displayName: 'Output Format',
 				description: 'Output format of the generated audio',
 				name: 'output_format',
-				type: 'string',
+				type: 'options',
+				options: [
+					{ name: 'MP3 (44.1kHz, 128kbps)', value: 'mp3_44100_128' },
+					{ name: 'MP3 (44.1kHz, 192kbps)', value: 'mp3_44100_192' },
+					{ name: 'PCM (16-bit, 44.1kHz)', value: 'pcm_16000' },
+					{ name: 'PCM (16-bit, 22.05kHz)', value: 'pcm_22050' },
+					{ name: 'PCM (16-bit, 24kHz)', value: 'pcm_24000' },
+					{ name: 'PCM (24-bit, 44.1kHz)', value: 'pcm_24000_24' },
+					{ name: 'μ-law (8-bit, 8kHz)', value: 'ulaw_8000' },
+				],
 				default: 'mp3_44100_128',
+			},
+			// language_code - New parameter from documentation
+			{
+				displayName: 'Language Code',
+				description: 'Language code (ISO 639-1) used to enforce a language for the model. Currently only works with Turbo v2.5 and Flash v2.5',
+				name: 'language_code',
+				type: 'string',
+				default: '',
+				placeholder: 'en',
 			},
 			// model_id
 			{
@@ -226,10 +245,43 @@ export const SpeechOperations: INodeProperties[] = [
 			// seed
 			{
 				displayName: 'Seed',
-				description: 'Define a fixed seed',
+				description: 'Makes TTS deterministic. Providing the same seed with the same text will result in the same audio output. Values between 0-4294967295',
 				name: 'seed',
 				type: 'number',
 				default: 0,
+				typeOptions: {
+					minValue: 0,
+					maxValue: 4294967295,
+				},
+			},
+			// Enable Logging (new parameter)
+			{
+				displayName: 'Enable Logging',
+				description: 'Whether to enable logging. False means zero retention mode (history features unavailable)',
+				name: 'enable_logging',
+				type: 'boolean',
+				default: true,
+			},
+			// Text Normalization (new parameter)
+			{
+				displayName: 'Text Normalization',
+				description: 'Controls text normalization. Auto (system decides), On (always applied), Off (skipped)',
+				name: 'apply_text_normalization',
+				type: 'options',
+				options: [
+					{ name: 'Auto', value: 'auto' },
+					{ name: 'On', value: 'on' },
+					{ name: 'Off', value: 'off' },
+				],
+				default: 'auto',
+			},
+			// Use PVC as IVC (new parameter)
+			{
+				displayName: 'Use PVC as IVC',
+				description: 'If true, won\'t use PVC version of the voice for generation but the IVC version',
+				name: 'use_pvc_as_ivc',
+				type: 'boolean',
+				default: false,
 			},
 			// stitching
 			{
@@ -239,6 +291,34 @@ export const SpeechOperations: INodeProperties[] = [
 				name: 'stitching',
 				type: 'boolean',
 				default: true,
+			},
+			// Previous Request IDs (new)
+			{
+				displayName: 'Previous Request IDs',
+				description: 'A list of request_ids of samples generated before this generation (max 3)',
+				name: 'previous_request_ids',
+				type: 'string',
+				default: '',
+				placeholder: 'id1,id2,id3',
+				displayOptions: {
+					show: {
+						stitching: [true],
+					},
+				},
+			},
+			// Next Request IDs (new)
+			{
+				displayName: 'Next Request IDs',
+				description: 'A list of request_ids of samples that come after this generation (max 3)',
+				name: 'next_request_ids',
+				type: 'string',
+				default: '',
+				placeholder: 'id1,id2,id3',
+				displayOptions: {
+					show: {
+						stitching: [true],
+					},
+				},
 			},
 		],
 	},
@@ -262,44 +342,69 @@ async function preSendText(
 	requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
 	const text = this.getNodeParameter('text') as string;
-	const model_id = this.getNodeParameter('model_id', null) as string;
-	const seed = this.getNodeParameter('seed', 0) as string;
+	const additionalFields = this.getNodeParameter('additionalFields', {}) as IDataObject;
 
-	const stability = this.getNodeParameter('additionalFields.stability', 0.5);
-	const similarity_boost = this.getNodeParameter('additionalFields.similarity_boost', 1);
-	const style = this.getNodeParameter('additionalFields.style', 0);
-	const use_speaker_boost = this.getNodeParameter('additionalFields.use_speaker_boost', true);
-	const stitching = this.getNodeParameter('additionalFields.stitching', false);
+	// Get all the parameters
+	const model_id = additionalFields.model_id as string || 'eleven_multilingual_v2';
+	const seed = parseInt(additionalFields.seed as string || '0', 10);
+	const language_code = additionalFields.language_code as string;
+	const enable_logging = additionalFields.enable_logging as boolean;
+	const apply_text_normalization = additionalFields.apply_text_normalization as string;
+	const use_pvc_as_ivc = additionalFields.use_pvc_as_ivc as boolean;
+	const stitching = additionalFields.stitching as boolean;
 
-	const data: any = {
-		text: text,
-		model_id: model_id,
+	// Voice settings
+	const stability = additionalFields.stability as number || 0.5;
+	const similarity_boost = additionalFields.similarity_boost as number || 0.75;
+	const style = additionalFields.style as number || 0;
+	const use_speaker_boost = additionalFields.use_speaker_boost as boolean;
+
+	// Build the request body
+	const data: IDataObject = {
+		text,
+		model_id,
 		voice_settings: {
-			stability: stability,
-			similarity_boost: similarity_boost,
-			style: style,
-			use_speaker_boost: use_speaker_boost,
+			stability,
+			similarity_boost,
+			style,
+			use_speaker_boost,
 		},
 	};
 
-	// Stitching
-	if (stitching) {
-		if (seed) data.seed = seed;
-		if (model_id) data.model_id = model_id;
+	// Add optional parameters
+	if (language_code) data.language_code = language_code;
+	if (seed !== 0) data.seed = seed;
+	if (enable_logging !== undefined) requestOptions.qs = {...requestOptions.qs, enable_logging};
+	if (apply_text_normalization) data.apply_text_normalization = apply_text_normalization;
+	if (use_pvc_as_ivc !== undefined) data.use_pvc_as_ivc = use_pvc_as_ivc;
 
+	// Handle stitching
+	if (stitching) {
 		const runIndex = this.getItemIndex();
 		const texts: string[] = [];
 
-		this.getExecuteData().data.main[0]?.forEach((text) => {
-			texts.push(text.json.text as string);
+		this.getExecuteData().data.main[0]?.forEach((item) => {
+			texts.push(item.json.text as string);
 		});
 
+		// Add previous and next text for context
 		if (runIndex > 0) data.previous_text = texts[runIndex - 1];
 		if (runIndex < texts.length - 1) data.next_text = texts[runIndex + 1];
+
+		// Handle request IDs
+		const previousRequestIds = (additionalFields.previous_request_ids as string || '').split(',').filter(Boolean);
+		const nextRequestIds = (additionalFields.next_request_ids as string || '').split(',').filter(Boolean);
+
+		if (previousRequestIds.length > 0) {
+			data.previous_request_ids = previousRequestIds.slice(0, 3); // Max 3 IDs allowed
+		}
+
+		if (nextRequestIds.length > 0) {
+			data.next_request_ids = nextRequestIds.slice(0, 3); // Max 3 IDs allowed
+		}
 	}
 
 	requestOptions.body = data;
-
 	return requestOptions;
 }
 
