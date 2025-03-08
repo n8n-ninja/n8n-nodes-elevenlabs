@@ -49,11 +49,42 @@ export const SpeechOperations: INodeProperties[] = [
 					},
 				},
 			},
+			{
+				name: 'Create Transcript',
+				value: 'speech-to-text',
+				action: 'Create transcript',
+				description: 'Transcribe an audio or video file',
+				routing: {
+					request: {
+						url: '/speech-to-text',
+						method: 'POST',
+						headers: {
+							'Content-Type': 'multipart/form-data',
+						},
+					},
+					send: {
+						preSend: [preSendTranscript],
+					},
+				},
+			},
 		],
 		default: 'text-to-speech',
+	},
+
+	// Separate operation-specific routings
+	{
+		displayName: 'Request Configuration',
+		name: 'requestConfiguration',
+		type: 'hidden',
+		default: '',
+		displayOptions: {
+			show: {
+				operation: ['text-to-speech', 'voice-changer'],
+			},
+		},
 		routing: {
 			request: {
-				url: '={{"/" + $parameter["operation"] + "/" + $parameter["voice_id"]}}',
+				url: '={{"/"+$parameter["operation"]+"/"+$parameter["voice_id"]}}',
 				qs: {
 					optimize_streaming_latency:
 						'={{$parameter["additionalFields"]["optimize_streaming_latency"]}}',
@@ -68,6 +99,26 @@ export const SpeechOperations: INodeProperties[] = [
 			},
 		},
 	},
+	{
+		displayName: 'Request Configuration',
+		name: 'requestConfigurationTranscript',
+		type: 'hidden',
+		default: '',
+		displayOptions: {
+			show: {
+				operation: ['speech-to-text'],
+			},
+		},
+		routing: {
+			request: {
+				url: '/speech-to-text',
+				qs: {
+					enable_logging: '={{$parameter["additionalFields"]["enable_logging"]}}',
+				},
+				returnFullResponse: true,
+			},
+		},
+	},
 
 	// Text
 	{
@@ -77,6 +128,9 @@ export const SpeechOperations: INodeProperties[] = [
 		name: 'text',
 		type: 'string',
 		default: 'Be good to people!',
+		typeOptions: {
+			rows: 5, // Make this a multi-line text field with 5 rows
+		},
 		displayOptions: {
 			show: {
 				operation: ['text-to-speech'],
@@ -95,6 +149,21 @@ export const SpeechOperations: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				operation: ['voice-changer'],
+			},
+		},
+	},
+	
+	// Audio Input for Transcript
+	{
+		displayName: 'Binary Input Field',
+		name: 'binaryInputField',
+		type: 'string',
+		default: 'data',
+		required: true,
+		description: 'Name of the binary property that contains the audio/video file to transcribe',
+		displayOptions: {
+			show: {
+				operation: ['speech-to-text'],
 			},
 		},
 	},
@@ -129,6 +198,7 @@ export const SpeechOperations: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['speech'],
+				operation: ['text-to-speech', 'voice-changer'],
 			},
 		},
 		required: true,
@@ -199,8 +269,13 @@ export const SpeechOperations: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'en',
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech'],
+					},
+				},
 			},
-			// model_id
+			// model_id for text-to-speech
 			{
 				displayName: 'Model Name or ID',
 				description:
@@ -210,7 +285,29 @@ export const SpeechOperations: INodeProperties[] = [
 				typeOptions: {
 					loadOptionsMethod: 'listModels',
 				},
-				default: 'eleven_multilingual_v2',
+				default: 'eleven_monolingual_v1',
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech'],
+					},
+				},
+			},
+			// model_id for voice-changer
+			{
+				displayName: 'Model Name or ID',
+				description:
+					'Identifier of the model that will be used. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>.',
+				name: 'model_id',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'listModels',
+				},
+				default: 'eleven_english_sts_v2',
+				displayOptions: {
+					show: {
+						'/operation': ['voice-changer'],
+					},
+				},
 			},
 			// stability
 			{
@@ -291,6 +388,11 @@ export const SpeechOperations: INodeProperties[] = [
 					{ name: 'Off', value: 'off' },
 				],
 				default: 'auto',
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech'],
+					},
+				},
 			},
 			// Use PVC as IVC (new parameter)
 			{
@@ -299,6 +401,11 @@ export const SpeechOperations: INodeProperties[] = [
 				name: 'use_pvc_as_ivc',
 				type: 'boolean',
 				default: false,
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech'],
+					},
+				},
 			},
 			// stitching
 			{
@@ -308,6 +415,11 @@ export const SpeechOperations: INodeProperties[] = [
 				name: 'stitching',
 				type: 'boolean',
 				default: true,
+				displayOptions: {
+					show: {
+						'/operation': ['text-to-speech'],
+					},
+				},
 			},
 			// Previous Request IDs (new)
 			{
@@ -320,6 +432,7 @@ export const SpeechOperations: INodeProperties[] = [
 				displayOptions: {
 					show: {
 						stitching: [true],
+						'/operation': ['text-to-speech'],
 					},
 				},
 			},
@@ -334,6 +447,7 @@ export const SpeechOperations: INodeProperties[] = [
 				displayOptions: {
 					show: {
 						stitching: [true],
+						'/operation': ['text-to-speech'],
 					},
 				},
 			},
@@ -347,6 +461,96 @@ export const SpeechOperations: INodeProperties[] = [
 				displayOptions: {
 					show: {
 						'/operation': ['voice-changer'],
+					},
+				},
+			},
+			
+			// Transcript model_id
+			{
+				displayName: 'Transcript Model ID',
+				description: 'Model to use for transcription. Currently only "scribe_v1" is available',
+				name: 'transcript_model_id',
+				type: 'string',
+				default: 'scribe_v1',
+				displayOptions: {
+					show: {
+						'/operation': ['speech-to-text'],
+					},
+				},
+			},
+			// Language Code for Transcript
+			{
+				displayName: 'Language Code',
+				description: 'ISO-639-1 or ISO-639-3 language code of the audio. If not provided, language is auto-detected',
+				name: 'transcript_language_code',
+				type: 'string',
+				default: '',
+				placeholder: 'en',
+				displayOptions: {
+					show: {
+						'/operation': ['speech-to-text'],
+					},
+				},
+			},
+			// Tag Audio Events
+			{
+				displayName: 'Tag Audio Events',
+				description: 'Whether to tag audio events like (laughter), (footsteps), etc. in the transcription',
+				name: 'tag_audio_events',
+				type: 'boolean',
+				default: true,
+				displayOptions: {
+					show: {
+						'/operation': ['speech-to-text'],
+					},
+				},
+			},
+			// Number of Speakers
+			{
+				displayName: 'Number of Speakers',
+				description: 'Maximum amount of speakers in the audio (helps with prediction)',
+				name: 'num_speakers',
+				type: 'number',
+				default: '',
+				placeholder: '2',
+				typeOptions: {
+					minValue: 1,
+					maxValue: 32,
+				},
+				displayOptions: {
+					show: {
+						'/operation': ['speech-to-text'],
+					},
+				},
+			},
+			// Timestamps Granularity
+			{
+				displayName: 'Timestamps Granularity',
+				description: 'Granularity of timestamps in the transcription',
+				name: 'timestamps_granularity',
+				type: 'options',
+				options: [
+					{ name: 'None', value: 'none' },
+					{ name: 'Word', value: 'word' },
+					{ name: 'Character', value: 'character' },
+				],
+				default: 'word',
+				displayOptions: {
+					show: {
+						'/operation': ['speech-to-text'],
+					},
+				},
+			},
+			// Diarize
+			{
+				displayName: 'Speaker Diarization',
+				description: 'Whether to annotate which speaker is talking in the uploaded file',
+				name: 'diarize',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						'/operation': ['speech-to-text'],
 					},
 				},
 			},
@@ -368,10 +572,8 @@ async function preSendUploadAudio(
 	const formData = new FormData();
 	formData.append('audio', new Blob([audioBuffer]));
 	
-	// Add model_id if provided
-	if (additionalFields.model_id) {
-		formData.append('model_id', additionalFields.model_id as string);
-	}
+	// Add model_id with default if needed
+	formData.append('model_id', (additionalFields.model_id as string) || 'eleven_english_sts_v2');
 	
 	// Add seed if provided and not 0
 	if (additionalFields.seed && (additionalFields.seed as number) !== 0) {
@@ -430,7 +632,7 @@ async function preSendText(
 	const additionalFields = this.getNodeParameter('additionalFields', {}) as IDataObject;
 
 	// Get all the parameters
-	const model_id = additionalFields.model_id as string || 'eleven_multilingual_v2';
+	const model_id = additionalFields.model_id as string || 'eleven_monolingual_v1';
 	const seed = parseInt(additionalFields.seed as string || '0', 10);
 	const language_code = additionalFields.language_code as string;
 	const enable_logging = additionalFields.enable_logging as boolean;
@@ -490,6 +692,63 @@ async function preSendText(
 	}
 
 	requestOptions.body = data;
+	return requestOptions;
+}
+
+async function preSendTranscript(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
+	const binaryInputField = this.getNodeParameter('binaryInputField', 'data') as string;
+	const additionalFields = this.getNodeParameter('additionalFields', {}) as IDataObject;
+	
+	// Get binary data
+	const audioBuffer = await this.helpers.getBinaryDataBuffer(binaryInputField);
+	
+	// Get transcript parameters
+	const model_id = additionalFields.transcript_model_id as string || 'scribe_v1';
+	const language_code = additionalFields.transcript_language_code as string;
+	const tag_audio_events = additionalFields.tag_audio_events as boolean;
+	const num_speakers = additionalFields.num_speakers as number;
+	const timestamps_granularity = additionalFields.timestamps_granularity as string;
+	const diarize = additionalFields.diarize as boolean;
+	const enable_logging = additionalFields.enable_logging as boolean;
+	
+	// Create form data
+	const formData = new FormData();
+	formData.append('file', new Blob([audioBuffer]));
+	formData.append('model_id', model_id);
+	
+	// Add optional parameters
+	if (language_code) {
+		formData.append('language_code', language_code);
+	}
+	
+	if (tag_audio_events !== undefined) {
+		formData.append('tag_audio_events', String(tag_audio_events));
+	}
+	
+	if (num_speakers) {
+		formData.append('num_speakers', String(num_speakers));
+	}
+	
+	if (timestamps_granularity) {
+		formData.append('timestamps_granularity', timestamps_granularity);
+	}
+	
+	if (diarize !== undefined) {
+		formData.append('diarize', String(diarize));
+	}
+	
+	// Add query parameters
+	if (enable_logging !== undefined) {
+		requestOptions.qs = {
+			...requestOptions.qs,
+			enable_logging,
+		};
+	}
+	
+	requestOptions.body = formData;
 	return requestOptions;
 }
 
