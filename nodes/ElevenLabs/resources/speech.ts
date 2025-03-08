@@ -273,7 +273,7 @@ export const SpeechOperations: INodeProperties[] = [
 			},
 		},
 	},
-	
+
 	// Audio Input for Audio Isolation
 	{
 		displayName: 'Binary Input Field',
@@ -405,7 +405,7 @@ export const SpeechOperations: INodeProperties[] = [
 			// language_code - New parameter from documentation
 			{
 				displayName: 'Language Code',
-				description: 'Language code (ISO 639-1) used to enforce a language for the model. Currently only works with Turbo v2.5 and Flash v2.5',
+				description: 'Language code (ISO 639-1) used to enforce a language for the model. IMPORTANT: Currently ONLY works with Turbo v2.5 and Flash v2.5 models!',
 				name: 'language_code',
 				type: 'string',
 				default: '',
@@ -763,6 +763,7 @@ export const SpeechOperations: INodeProperties[] = [
 					},
 				},
 			},
+			// Removed redundant language_id parameter
 		],
 	},
 ];
@@ -842,17 +843,16 @@ async function preSendText(
 
 	// Get all the parameters
 	const model_id = additionalFields.model_id as string || 'eleven_monolingual_v1';
-	const seed = parseInt(additionalFields.seed as string || '0', 10);
+	const seed = additionalFields.seed !== undefined ? additionalFields.seed as number : 0;
 	const language_code = additionalFields.language_code as string;
-	const enable_logging = additionalFields.enable_logging as boolean;
 	const apply_text_normalization = additionalFields.apply_text_normalization as string;
 	const use_pvc_as_ivc = additionalFields.use_pvc_as_ivc as boolean;
 	const stitching = additionalFields.stitching as boolean;
 
 	// Voice settings
-	const stability = additionalFields.stability as number || 0.5;
-	const similarity_boost = additionalFields.similarity_boost as number || 0.75;
-	const style = additionalFields.style as number || 0;
+	const stability = additionalFields.stability !== undefined ? additionalFields.stability as number : 0.5;
+	const similarity_boost = additionalFields.similarity_boost !== undefined ? additionalFields.similarity_boost as number : 0.75;
+	const style = additionalFields.style !== undefined ? additionalFields.style as number : 0;
 	const use_speaker_boost = additionalFields.use_speaker_boost as boolean;
 
 	// Build the request body
@@ -868,14 +868,44 @@ async function preSendText(
 	};
 
 	// Add optional parameters
-	if (language_code) data.language_code = language_code;
+	// Only add language_code if using a compatible model (currently only Turbo v2.5 and Flash v2.5)
+	if (language_code && (model_id.includes('turbo_v2') || model_id.includes('flash_v2'))) {
+		data.language_code = language_code;
+	}
+	
 	if (seed !== 0) data.seed = seed;
-	if (enable_logging !== undefined) requestOptions.qs = {...requestOptions.qs, enable_logging};
 	if (apply_text_normalization) data.apply_text_normalization = apply_text_normalization;
 	if (use_pvc_as_ivc !== undefined) data.use_pvc_as_ivc = use_pvc_as_ivc;
 
+	// Add query parameters
+	if (additionalFields.enable_logging !== undefined) {
+		requestOptions.qs = {
+			...requestOptions.qs,
+			enable_logging: additionalFields.enable_logging,
+		};
+	}
+
+	if (additionalFields.output_format) {
+		requestOptions.qs = {
+			...requestOptions.qs,
+			output_format: additionalFields.output_format,
+		};
+	}
+
+	if (additionalFields.optimize_streaming_latency !== undefined) {
+		requestOptions.qs = {
+			...requestOptions.qs,
+			optimize_streaming_latency: additionalFields.optimize_streaming_latency,
+		};
+	}
+
+	// Removed redundant language_id check
+
 	// Handle stitching
 	if (stitching) {
+		if (seed) data.seed = seed;
+		if (model_id) data.model_id = model_id;
+		
 		const runIndex = this.getItemIndex();
 		const texts: string[] = [];
 
@@ -947,14 +977,14 @@ async function preSendAudioIsolation(
 	requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
 	const binaryInputField = this.getNodeParameter('binaryInputField', 'data') as string;
-	
+
 	// Get binary data
 	const audioBuffer = await this.helpers.getBinaryDataBuffer(binaryInputField);
-	
+
 	// Create form data
 	const formData = new FormData();
 	formData.append('audio', new Blob([audioBuffer]));
-	
+
 	requestOptions.body = formData;
 	return requestOptions;
 }
